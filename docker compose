@@ -1,49 +1,9 @@
-services:
-  gitlab:
-    image: gitlab/gitlab-ce:latest
-    container_name: gitlab
-    restart: always
-    hostname: gitlab.local
-    environment:
-      GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://gitlab.local:8080'
-        gitlab_rails['gitlab_shell_ssh_port'] = 2222
-    ports:
-      - '8080:8080'
-      - '2222:22'
-    volumes:
-      - './gitlab/config:/etc/gitlab'
-      - './gitlab/logs:/var/log/gitlab'
-      - './gitlab/data:/var/opt/gitlab'
-    networks:
-      - devsecops-net
-
-  openproject:
-    image: openproject/community:13
-    container_name: openproject
-    restart: always
-    environment:
-      - SECRET_KEY_BASE=super_secret_random_key_12345
-      - OPENPROJECT_HOST__NAME=localhost:8081
-      - OPENPROJECT_HTTPS=false
-    ports:
-      - '8081:8080'
-    volumes:
-      - './openproject/pgdata:/var/openproject/pgdata'
-      - './openproject/assets:/var/openproject/assets'
-    networks:
-      - devsecops-net
-
-  gitlab-runner:
-    image: gitlab/gitlab-runner:latest
-    container_name: gitlab-runner
-    restart: always
-    volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
-      - './gitlab-runner-config:/etc/gitlab-runner'
-    networks:
-      - devsecops-net
-
-networks:
-  devsecops-net:
-    driver: bridge
+sudo docker run --detach \
+  --hostname gitlab.example.com \
+  --publish 443:443 --publish 80:80 --publish 2222:22 \
+  --name gitlab \
+  --restart always \
+  --volume /srv/gitlab/config:/etc/gitlab \
+  --volume /srv/gitlab/logs:/var/log/gitlab \
+  --volume /srv/gitlab/data:/var/opt/gitlab \
+  gitlab/gitlab-ce:latest
